@@ -103,6 +103,14 @@ def train_model():
     if EVALUATION:
         evaluate_model(fit_model)
 
+    # Evaluate the model, returns the loss value & metrics values for the model in test mode.
+    test_loss, test_accuracy = model.evaluate(x_test, y_test)
+    print("Test accuracy:", test_accuracy)
+
+    # Save the trained model
+    model.save('my_model.keras')
+    print("Model trained and saved.")
+
 
 def evaluate_model(fit_model):
     plt.figure(1)
