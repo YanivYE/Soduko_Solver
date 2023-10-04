@@ -17,6 +17,8 @@ N_TRAIN = 10000
 N_TEST = 20
 RESOLUTION = 28
 
+EVALUATION = False
+
 
 def bytes_to_int(byte_data):
     return int.from_bytes(byte_data, 'big')
@@ -97,6 +99,25 @@ def train_model():
 
     # Train the model, epochs - dataset iterations
     fit_model = model.fit(x_train, y_train, epochs=10, batch_size=32, validation_data=(x_test, y_test))
+
+    if EVALUATION:
+        evaluate_model(fit_model)
+
+
+def evaluate_model(fit_model):
+    plt.figure(1)
+    plt.plot(fit_model.history['loss'])
+    plt.plot(fit_model.history['val_loss'])
+    plt.legend(['training', 'validation'])
+    plt.title('Loss')
+    plt.xlabel('epoch')
+    plt.figure(2)
+    plt.plot(fit_model.history['accuracy'])
+    plt.plot(fit_model.history['val_accuracy'])
+    plt.legend(['training', 'validation'])
+    plt.title('Accuracy')
+    plt.xlabel('epoch')
+    plt.show()
 
 
 def main():
