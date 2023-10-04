@@ -17,6 +17,7 @@ N_TRAIN = 10000
 N_TEST = 20
 RESOLUTION = 28
 
+
 def bytes_to_int(byte_data):
     return int.from_bytes(byte_data, 'big')
 
@@ -55,6 +56,20 @@ def read_labels(filename, n_max_labels=None):
     return labels
 
 
+def build_cnn_model(input_shape, num_classes):
+    model = models.Sequential([
+        layers.Conv2D(32, (3, 3), activation='relu', input_shape=input_shape),
+        layers.MaxPooling2D((2, 2)),
+        layers.Conv2D(64, (3, 3), activation='relu'),
+        layers.MaxPooling2D((2, 2)),
+        layers.Conv2D(128, (3, 3), activation='relu'),
+        layers.Flatten(),
+        layers.Dense(128, activation='relu'),
+        layers.Dense(num_classes, activation='softmax')
+    ])
+    return model
+
+
 def train_model():
     # Read and convert image data
     x_train = np.array(read_images(TRAIN_DATA_FILENAME, N_TRAIN))
@@ -75,6 +90,13 @@ def train_model():
     # Convert labels to one-hot encoded vectors - binary class matrix
     y_train = to_categorical(y_train, num_classes)
     y_test = to_categorical(y_test, num_classes)
+
+    # Build the CNN model
+    model = build_cnn_model(input_shape, num_classes)
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+    # Train the model, epochs - dataset iterations
+    fit_model = model.fit(x_train, y_train, epochs=10, batch_size=32, validation_data=(x_test, y_test))
 
 
 def main():
