@@ -4,6 +4,7 @@
 from keras import layers, models
 from keras.preprocessing import image
 import numpy as np
+from keras.src.optimizers import Adam
 from keras.utils import to_categorical
 import matplotlib.pyplot as plt
 
@@ -16,8 +17,7 @@ TRAIN_LABELS_FILENAME = DATA_DIR + 'train-labels.idx1-ubyte'
 N_TRAIN = 10000
 N_TEST = 20
 RESOLUTION = 28
-
-EVALUATION = False
+EVALUATION = True
 
 
 def bytes_to_int(byte_data):
@@ -59,14 +59,21 @@ def read_labels(filename, n_max_labels=None):
 
 
 def build_cnn_model(input_shape, num_classes):
+    num_of_filters = 60
+    size_of_filter_1 = (5, 5)
+    size_of_filter_2 = (3, 3)
+    size_of_pool = (2, 2)
+    num_of_nodes = 500
     model = models.Sequential([
-        layers.Conv2D(32, (3, 3), activation='relu', input_shape=input_shape),
-        layers.MaxPooling2D((2, 2)),
-        layers.Conv2D(64, (3, 3), activation='relu'),
-        layers.MaxPooling2D((2, 2)),
-        layers.Conv2D(128, (3, 3), activation='relu'),
+        layers.Conv2D(num_of_filters, size_of_filter_1, activation='relu', input_shape=input_shape),
+        layers.Conv2D(num_of_filters, size_of_filter_1, activation='relu'),
+        layers.MaxPooling2D(pool_size=size_of_pool),
+        layers.Conv2D(num_of_filters // 2, size_of_filter_2, activation='relu'),
+        layers.Conv2D(num_of_filters // 2, size_of_filter_2, activation='relu'),
+        layers.MaxPooling2D(pool_size=size_of_pool),
+        layers.Dropout(0.5),
         layers.Flatten(),
-        layers.Dense(128, activation='relu'),
+        layers.Dense(num_of_nodes, activation='relu'),
         layers.Dense(num_classes, activation='softmax')
     ])
     return model
@@ -95,10 +102,11 @@ def train_model():
 
     # Build the CNN model
     model = build_cnn_model(input_shape, num_classes)
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    model.compile(Adam(lr=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
 
     # Train the model, epochs - dataset iterations
-    fit_model = model.fit(x_train, y_train, epochs=10, batch_size=32, validation_data=(x_test, y_test))
+    fit_model = model.fit(x_train, y_train, epochs=10, batch_size=32,
+                          validation_data=(x_test, y_test))
 
     if EVALUATION:
         evaluate_model(fit_model)
