@@ -15,7 +15,7 @@ TRAIN_LABELS_FILENAME = DATA_DIR + 'train-labels.idx1-ubyte'
 
 N_TRAIN = 10000
 N_TEST = 20
-
+RESOLUTION = 28
 
 def bytes_to_int(byte_data):
     return int.from_bytes(byte_data, 'big')
@@ -63,6 +63,18 @@ def train_model():
     # Read labels
     y_train = read_labels(TRAIN_LABELS_FILENAME, N_TRAIN)
     y_test = read_labels(TEST_LABELS_FILENAME, N_TEST)
+
+    # Assuming images are 28x28 pixels
+    input_shape = (RESOLUTION, RESOLUTION, 1)
+    num_classes = 10  # Number of digits
+
+    # Preprocess data for CNN
+    x_train = x_train.reshape(-1, RESOLUTION, RESOLUTION, 1).astype('float32') / 255.0
+    x_test = x_test.reshape(-1, RESOLUTION, RESOLUTION, 1).astype('float32') / 255.0
+
+    # Convert labels to one-hot encoded vectors - binary class matrix
+    y_train = to_categorical(y_train, num_classes)
+    y_test = to_categorical(y_test, num_classes)
 
 
 def main():
