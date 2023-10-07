@@ -25,8 +25,8 @@ def define_contours(img, preprocessed_img):
         pts2 = np.float32([[0, 0], [SIZE, 0], [0, SIZE], [SIZE, SIZE]])
         matrix = cv2.getPerspectiveTransform(pts1, pts2)
         imgWarpColored = cv2.warpPerspective(img, matrix, (SIZE, SIZE))
-        imgDetectedDigits = np.zeros((SIZE, SIZE, 3), np.uint8)
         imgWarpColored = cv2.cvtColor(imgWarpColored, cv2.COLOR_BGR2GRAY)
+        return imgWarpColored
 
 
 def find_biggest_contour(contours):
@@ -59,7 +59,7 @@ def reorder(points_arr):
 def main():
     img = cv2.resize(cv2.imread(PATH), (SIZE, SIZE))
     preprocessed_img = preprocess_image(img)
-    define_contours(img, preprocessed_img)
+    board = define_contours(img, preprocessed_img)
 
 
 if __name__ == '__main__':
