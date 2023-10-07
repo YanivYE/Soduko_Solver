@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 from keras import models
 
-PATH = "board.png"
+PATH = "board2.png"
 SIZE = 450
 RESOLUTION = 28
 
@@ -21,7 +21,7 @@ def initialize_cnn_model():
 def preprocess_image(img):
     img_grayscale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     img_blur = cv2.GaussianBlur(img_grayscale, (5, 5), 1)
-    img_threshold = cv2.adaptiveThreshold(img_blur, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 11, 2)
+    img_threshold = cv2.adaptiveThreshold(img_blur, 255, 1, 1, 11, 2)
     return img_threshold
 
 
@@ -29,12 +29,11 @@ def define_contours(img, preprocessed_img):
     img_contours = img.copy()
     img_big_contour = img.copy()
     contours, hierarchy = cv2.findContours(preprocessed_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-    cv2.drawContours(img_contours, contours, -1, (0, 255, 0), 3)
+    cv2.drawContours(img_contours, contours, -1, (0, 0, 255), 3)
     biggest_contour, max_area = find_biggest_contour(contours)
     if biggest_contour.size != 0:
         biggest_contour = reorder(biggest_contour)
-        cv2.drawContours(img_big_contour, biggest_contour, -1, (0, 255, 0), 10)
+        cv2.drawContours(img_big_contour, biggest_contour, -1, (0, 0, 255), 20)
         pts1 = np.float32(biggest_contour)
         pts2 = np.float32([[0, 0], [SIZE, 0], [0, SIZE], [SIZE, SIZE]])
         matrix = cv2.getPerspectiveTransform(pts1, pts2)
@@ -73,7 +72,8 @@ def reorder(points_arr):
 
 def classify_digits(board, cnn_model):
     boxes = split_boxes(board)
-    # digits = predict(boxes, cnn_model)
+    digits = predict(boxes, cnn_model)
+    print(digits)
 
 
 def split_boxes(board):
@@ -89,8 +89,10 @@ def split_boxes(board):
 def predict(boxes, model):
     result = []
     for box in boxes:
+        display(box)
         img = prepare_image_box(box)
         prediction = model.predict(img)
+        print(prediction)
         class_index = np.argmax(prediction, axis=1)
         prob_value = np.amax(prediction)
         print(class_index, prob_value)
@@ -106,13 +108,17 @@ def prepare_image_box(box):
     return img
 
 
-
 def generate_result(result, prob_value, class_index):
     if prob_value > 0.8:
         result.append(class_index[0])
     else:
         result.append(0)
     return result
+
+
+def display(img):
+    cv2.imshow("img", img)
+    cv2.waitKey(0)
 
 
 def main():

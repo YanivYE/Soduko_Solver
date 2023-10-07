@@ -2,61 +2,12 @@
 
 # TensorFlow's Keras API
 from keras import layers, models
-from keras.preprocessing import image
-import numpy as np
-from keras.src.optimizers import Adam
+from keras.datasets import mnist
 from keras.utils import to_categorical
 import matplotlib.pyplot as plt
 
-DATA_DIR = 'data/'
-TEST_DATA_FILENAME = DATA_DIR + 't10k-images.idx3-ubyte'
-TEST_LABELS_FILENAME = DATA_DIR + 't10k-labels.idx1-ubyte'
-TRAIN_DATA_FILENAME = DATA_DIR + 'train-images.idx3-ubyte'
-TRAIN_LABELS_FILENAME = DATA_DIR + 'train-labels.idx1-ubyte'
-
-N_TRAIN = 10000
-N_TEST = 20
 RESOLUTION = 28
 EVALUATION = False
-
-
-def bytes_to_int(byte_data):
-    return int.from_bytes(byte_data, 'big')
-
-
-def read_images(filename, n_max_images=None):
-    images = []
-    with open(filename, 'rb') as f:
-        _ = f.read(4)  # magic number
-        n_images = bytes_to_int(f.read(4))
-        if n_max_images:
-            n_images = n_max_images
-        n_rows = bytes_to_int(f.read(4))
-        n_columns = bytes_to_int(f.read(4))
-        for image_idx in range(n_images):
-            image = []
-            for row_idx in range(n_rows):
-                row = []
-                for col_idx in range(n_columns):
-                    pixel = int.from_bytes(f.read(1), 'big')  # Convert bytes to integer
-                    row.append(pixel)
-                image.append(row)
-            images.append(image)
-    return images
-
-
-def read_labels(filename, n_max_labels=None):
-    labels = []
-    with open(filename, 'rb') as f:
-        _ = f.read(4)  # magic number
-        n_labels = bytes_to_int(f.read(4))
-        if n_max_labels:
-            n_labels = n_max_labels
-        for label_idx in range(n_labels):
-            label = bytes_to_int(f.read(1))
-            labels.append(label)
-    return labels
-
 
 def build_cnn_model(input_shape, num_classes):
     num_of_filters = 60
@@ -80,25 +31,21 @@ def build_cnn_model(input_shape, num_classes):
 
 
 def train_model():
+    (x_train, y_train), (x_test, y_test) = mnist.load_data()
     # Read and convert image data
-    x_train = np.array(read_images(TRAIN_DATA_FILENAME, N_TRAIN))
-    x_test = np.array(read_images(TEST_DATA_FILENAME, N_TEST))
+    x_train = x_train.reshape((60000, RESOLUTION, RESOLUTION, 1))
+    x_train = x_train.astype("float32") / 255
 
-    # Read labels
-    y_train = read_labels(TRAIN_LABELS_FILENAME, N_TRAIN)
-    y_test = read_labels(TEST_LABELS_FILENAME, N_TEST)
+    x_test = x_test.reshape((10000, RESOLUTION, RESOLUTION, 1))
+    x_test = x_test.astype('float32') / 255
 
     # Assuming images are 28x28 pixels
     input_shape = (RESOLUTION, RESOLUTION, 1)
     num_classes = 10  # Number of digits
 
-    # Preprocess data for CNN
-    x_train = x_train.reshape(-1, RESOLUTION, RESOLUTION, 1).astype('float32') / 255.0
-    x_test = x_test.reshape(-1, RESOLUTION, RESOLUTION, 1).astype('float32') / 255.0
-
     # Convert labels to one-hot encoded vectors - binary class matrix
-    y_train = to_categorical(y_train, num_classes)
-    y_test = to_categorical(y_test, num_classes)
+    y_train = to_categorical(y_train)
+    y_test = to_categorical(y_test)
 
     # Build the CNN model
     model = build_cnn_model(input_shape, num_classes)
