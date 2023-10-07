@@ -20,6 +20,13 @@ def define_contours(img, preprocessed_img):
     biggest_contour, max_area = find_biggest_contour(contours)
     if biggest_contour.size != 0:
         biggest_contour = reorder(biggest_contour)
+        cv2.drawContours(img_big_contour, biggest_contour, -1, (0, 255, 0), 10)
+        pts1 = np.float32(biggest_contour)
+        pts2 = np.float32([[0, 0], [SIZE, 0], [0, SIZE], [SIZE, SIZE]])
+        matrix = cv2.getPerspectiveTransform(pts1, pts2)
+        imgWarpColored = cv2.warpPerspective(img, matrix, (SIZE, SIZE))
+        imgDetectedDigits = np.zeros((SIZE, SIZE, 3), np.uint8)
+        imgWarpColored = cv2.cvtColor(imgWarpColored, cv2.COLOR_BGR2GRAY)
 
 
 def find_biggest_contour(contours):
@@ -35,8 +42,18 @@ def find_biggest_contour(contours):
                 max_area = area
     return biggest_contour, max_area
 
+
 def reorder(points_arr):
-    
+    points_arr = points_arr.reshape((4, 2))
+
+    new_points_arr = np.zeros((4, 1, 2), dtype=np.int32)
+    add = points_arr.sum(1)
+    new_points_arr[0] = points_arr[np.argmin(add)]
+    new_points_arr[3] = points_arr[np.argmax(add)]
+    diff = np.diff(points_arr, axis=1)
+    new_points_arr[1] = points_arr[np.argmin(diff)]
+    new_points_arr[2] = points_arr[np.argmax(diff)]
+    return new_points_arr
 
 
 def main():
