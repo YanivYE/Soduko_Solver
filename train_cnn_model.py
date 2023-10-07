@@ -17,7 +17,7 @@ TRAIN_LABELS_FILENAME = DATA_DIR + 'train-labels.idx1-ubyte'
 N_TRAIN = 10000
 N_TEST = 20
 RESOLUTION = 28
-EVALUATION = True
+EVALUATION = False
 
 
 def bytes_to_int(byte_data):
@@ -102,7 +102,7 @@ def train_model():
 
     # Build the CNN model
     model = build_cnn_model(input_shape, num_classes)
-    model.compile(Adam(lr=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
     # Train the model, epochs - dataset iterations
     fit_model = model.fit(x_train, y_train, epochs=10, batch_size=32,
