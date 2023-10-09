@@ -1,30 +1,25 @@
 #!/usr/bin/env python
 
-# TensorFlow's Keras API
 from keras import layers, models
 from keras.datasets import mnist
 from keras.utils import to_categorical
+from keras.preprocessing.image import ImageDataGenerator
 import matplotlib.pyplot as plt
 
 RESOLUTION = 28
-EVALUATION = False
+EVALUATION = True  # Set this to True to evaluate the model
+
 
 def build_cnn_model(input_shape, num_classes):
-    num_of_filters = 60
-    size_of_filter_1 = (5, 5)
-    size_of_filter_2 = (3, 3)
-    size_of_pool = (2, 2)
-    num_of_nodes = 500
     model = models.Sequential([
-        layers.Conv2D(num_of_filters, size_of_filter_1, activation='relu', input_shape=input_shape),
-        layers.Conv2D(num_of_filters, size_of_filter_1, activation='relu'),
-        layers.MaxPooling2D(pool_size=size_of_pool),
-        layers.Conv2D(num_of_filters // 2, size_of_filter_2, activation='relu'),
-        layers.Conv2D(num_of_filters // 2, size_of_filter_2, activation='relu'),
-        layers.MaxPooling2D(pool_size=size_of_pool),
-        layers.Dropout(0.5),
+        layers.Conv2D(32, (3, 3), activation='relu', input_shape=input_shape),
+        layers.Conv2D(64, (3, 3), activation='relu'),
+        layers.MaxPooling2D((2, 2)),
+        layers.Conv2D(64, (3, 3), activation='relu'),
+        layers.MaxPooling2D((2, 2)),
         layers.Flatten(),
-        layers.Dense(num_of_nodes, activation='relu'),
+        layers.Dense(128, activation='relu'),
+        layers.Dropout(0.5),
         layers.Dense(num_classes, activation='softmax')
     ])
     return model
@@ -32,31 +27,38 @@ def build_cnn_model(input_shape, num_classes):
 
 def train_model():
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
-    # Read and convert image data
-    x_train = x_train.reshape((60000, RESOLUTION, RESOLUTION, 1))
-    x_train = x_train.astype("float32") / 255
 
-    x_test = x_test.reshape((10000, RESOLUTION, RESOLUTION, 1))
-    x_test = x_test.astype('float32') / 255
+    # Data Augmentation
+    datagen = ImageDataGenerator(
+        rotation_range=10,
+        width_shift_range=0.1,
+        height_shift_range=0.1,
+        zoom_range=0.1
+    )
+    datagen.fit(x_train.reshape(-1, RESOLUTION, RESOLUTION, 1))
 
-    # Assuming images are 28x28 pixels
-    input_shape = (RESOLUTION, RESOLUTION, 1)
-    num_classes = 10  # Number of digits
+    # Data Preprocessing
+    x_train = x_train.reshape((-1, RESOLUTION, RESOLUTION, 1)).astype('float32') / 255
+    x_test = x_test.reshape((-1, RESOLUTION, RESOLUTION, 1)).astype('float32') / 255
 
-    # Convert labels to one-hot encoded vectors - binary class matrix
+    # One-hot encoding
     y_train = to_categorical(y_train)
     y_test = to_categorical(y_test)
 
-    # Build the CNN model
+    # Model
+    input_shape = (RESOLUTION, RESOLUTION, 1)
+    num_classes = 10
     model = build_cnn_model(input_shape, num_classes)
+
+    # Compile the model
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
-    # Train the model, epochs - dataset iterations
-    fit_model = model.fit(x_train, y_train, epochs=10, batch_size=32,
-                          validation_data=(x_test, y_test))
+    # Training
+    history = model.fit(datagen.flow(x_train, y_train, batch_size=32),
+                        epochs=20, validation_data=(x_test, y_test))
 
     if EVALUATION:
-        evaluate_model(fit_model)
+        evaluate_model(history)
 
     # Evaluate the model, returns the loss value & metrics values for the model in test mode.
     test_loss, test_accuracy = model.evaluate(x_test, y_test)
@@ -67,16 +69,16 @@ def train_model():
     print("Model trained and saved.")
 
 
-def evaluate_model(fit_model):
+def evaluate_model(history):
     plt.figure(1)
-    plt.plot(fit_model.history['loss'])
-    plt.plot(fit_model.history['val_loss'])
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
     plt.legend(['training', 'validation'])
     plt.title('Loss')
     plt.xlabel('epoch')
     plt.figure(2)
-    plt.plot(fit_model.history['accuracy'])
-    plt.plot(fit_model.history['val_accuracy'])
+    plt.plot(history.history['accuracy'])
+    plt.plot(history.history['val_accuracy'])
     plt.legend(['training', 'validation'])
     plt.title('Accuracy')
     plt.xlabel('epoch')

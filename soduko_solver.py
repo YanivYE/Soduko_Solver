@@ -89,10 +89,8 @@ def split_boxes(board):
 def predict(boxes, model):
     result = []
     for box in boxes:
-        display(box)
         img = prepare_image_box(box)
         prediction = model.predict(img)
-        print(prediction)
         class_index = np.argmax(prediction, axis=1)
         prob_value = np.amax(prediction)
         print(class_index, prob_value)
