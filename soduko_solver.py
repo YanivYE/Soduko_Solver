@@ -1,3 +1,5 @@
+from matplotlib import pyplot as plt
+
 print('Setting UP')
 import os
 
@@ -7,7 +9,7 @@ import cv2
 import numpy as np
 from keras import models
 
-PATH = "board2.png"
+PATH = "board1.png"
 SIZE = 450
 RESOLUTION = 28
 
@@ -73,7 +75,7 @@ def reorder(points_arr):
 def classify_digits(board, cnn_model):
     boxes = split_boxes(board)
     digits = predict(boxes, cnn_model)
-    print(digits)
+    print_matrix(list_to_matrix(digits))
 
 
 def split_boxes(board):
@@ -88,8 +90,12 @@ def split_boxes(board):
 
 def predict(boxes, model):
     result = []
-    for box in boxes:
+    for i, box in enumerate(boxes):
         img = prepare_image_box(box)
+        # img = img.reshape(28, 28)
+        # plt.imshow(img, cmap='gray')  # Use 'cmap' to specify the color map (e.g., 'gray' for grayscale)
+        # plt.show()
+
         prediction = model.predict(img)
         class_index = np.argmax(prediction, axis=1)
         prob_value = np.amax(prediction)
@@ -99,15 +105,18 @@ def predict(boxes, model):
 
 
 def prepare_image_box(box):
+    # Convert the box to a NumPy array
     img = np.asarray(box)
-    img = img[4:img.shape[0] - 4, 4:img.shape[1] - 4]
-    img = cv2.resize(img, (RESOLUTION, RESOLUTION)).astype(np.float32) / 255.0
-    img = img.reshape(1, RESOLUTION, RESOLUTION, 1)
+    # Resize the image to 28x28
+    img = cv2.resize(img, (28, 28)).astype(np.float32)
+    # Invert the colors (white on black)
+    img = 1.0 - img / 255.0
+    img = img.reshape(1, 28, 28, 1)
     return img
 
 
 def generate_result(result, prob_value, class_index):
-    if prob_value > 0.8:
+    if prob_value > 0.9 :
         result.append(class_index[0])
     else:
         result.append(0)
@@ -117,6 +126,21 @@ def generate_result(result, prob_value, class_index):
 def display(img):
     cv2.imshow("img", img)
     cv2.waitKey(0)
+
+
+def list_to_matrix(cell_list):
+    matrix = []
+    for i in range(9):
+        row = []
+        for j in range(9):
+            row.append(cell_list[i * 9 + j])
+        matrix.append(row)
+    return matrix
+
+
+def print_matrix(matrix):
+    for row in matrix:
+        print(row)
 
 
 def main():
