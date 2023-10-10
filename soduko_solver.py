@@ -116,7 +116,7 @@ def prepare_image_box(box):
 
 
 def generate_result(result, prob_value, class_index):
-    if prob_value > 0.9 :
+    if prob_value > 0.99:
         result.append(class_index[0])
     else:
         result.append(0)

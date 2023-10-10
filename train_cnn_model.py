@@ -55,7 +55,7 @@ def train_model():
 
     # Training
     history = model.fit(datagen.flow(x_train, y_train, batch_size=32),
-                        epochs=20, validation_data=(x_test, y_test))
+                        epochs=10, validation_data=(x_test, y_test))
 
     if EVALUATION:
         evaluate_model(history)
