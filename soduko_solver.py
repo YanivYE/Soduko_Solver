@@ -9,7 +9,7 @@ import cv2
 import numpy as np
 from keras import models
 
-PATH = "board1.png"
+PATH = "board2.png"
 SIZE = 450
 RESOLUTION = 28
 
@@ -30,8 +30,25 @@ def preprocess_image(img):
 def define_contours(img, preprocessed_img):
     img_contours = img.copy()
     img_big_contour = img.copy()
-    contours, hierarchy = cv2.findContours(preprocessed_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    cv2.drawContours(img_contours, contours, -1, (0, 0, 255), 3)
+    # Step 1: Threshold the image
+    img_grayscale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    _, img_threshold = cv2.threshold(img_grayscale, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+    # Step 2: Invert the threshold
+    img_inverted = cv2.bitwise_not(img_threshold)
+
+    # Step 3: Remove digits
+    kernel = np.ones((3, 3), np.uint8)
+    img_no_digits = cv2.erode(img_inverted, kernel, iterations=1)
+
+    # Step 4: Find external contours
+    contours, hierarchy = cv2.findContours(img_no_digits, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    # Step 5: Draw white contours on original image
+    cv2.drawContours(img, contours, -1, (255, 255, 255), 3)
+
+
+
     biggest_contour, max_area = find_biggest_contour(contours)
     if biggest_contour.size != 0:
         biggest_contour = reorder(biggest_contour)
@@ -41,6 +58,7 @@ def define_contours(img, preprocessed_img):
         matrix = cv2.getPerspectiveTransform(pts1, pts2)
         img_warp_colored = cv2.warpPerspective(img, matrix, (SIZE, SIZE))
         img_warp_colored = cv2.cvtColor(img_warp_colored, cv2.COLOR_BGR2GRAY)
+        # display(img_warp_colored)
         return img_warp_colored
     return None
 
@@ -109,14 +127,17 @@ def prepare_image_box(box):
     img = np.asarray(box)
     # Resize the image to 28x28
     img = cv2.resize(img, (28, 28)).astype(np.float32)
+
     # Invert the colors (white on black)
     img = 1.0 - img / 255.0
+    # display(img)
+
     img = img.reshape(1, 28, 28, 1)
     return img
 
 
 def generate_result(result, prob_value, class_index):
-    if prob_value > 0.99:
+    if prob_value > 0.8:
         result.append(class_index[0])
     else:
         result.append(0)
