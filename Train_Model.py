@@ -71,4 +71,4 @@ print("Test accuracy:", test_accuracy)
 
 # Save the trained model
 print("[INFO] saving model..")
-model.save('my_model.h5')
+model.save('my_model.keras')
