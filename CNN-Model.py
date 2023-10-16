@@ -8,7 +8,7 @@ from keras.layers import Dense
 from keras.layers import Dropout
 
 
-class SudokuNet:
+class CnnModel:
     @staticmethod
     def build(width, height, depth, classes):
         # initialize the model
