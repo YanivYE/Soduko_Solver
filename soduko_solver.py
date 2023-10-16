@@ -8,6 +8,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import cv2
 import numpy as np
 from keras import models
+from skimage.segmentation import clear_border
 
 PATH = "board2.png"
 SIZE = 450
@@ -46,8 +47,6 @@ def define_contours(img, preprocessed_img):
 
     # Step 5: Draw white contours on original image
     cv2.drawContours(img, contours, -1, (255, 255, 255), 3)
-
-
 
     biggest_contour, max_area = find_biggest_contour(contours)
     if biggest_contour.size != 0:
@@ -137,7 +136,10 @@ def prepare_image_box(box):
 
 
 def generate_result(result, prob_value, class_index):
-    if prob_value > 0.8:
+    val = 0.8
+    if class_index[0] == 6:
+        val = 0.6
+    if prob_value > val:
         result.append(class_index[0])
     else:
         result.append(0)
@@ -169,6 +171,7 @@ def main():
     img = cv2.resize(cv2.imread(PATH), (SIZE, SIZE))
     preprocessed_img = preprocess_image(img)
     board = define_contours(img, preprocessed_img)
+    display(board)
     classify_digits(board, model)
 
 
