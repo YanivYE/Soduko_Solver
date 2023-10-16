@@ -8,7 +8,7 @@ from keras.layers import Dense
 from keras.layers import Dropout
 
 
-class CnnModel:
+class CNN_Model:
     @staticmethod
     def build(width, height, depth, classes):
         # initialize the model
