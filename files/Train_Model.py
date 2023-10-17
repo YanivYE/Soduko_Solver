@@ -6,7 +6,6 @@ import CNN_Model
 from keras.optimizers import Adam
 from keras.datasets import mnist
 from sklearn.preprocessing import LabelBinarizer
-from sklearn.metrics import classification_report
 
 # initialize the initial learning rate, number of epochs to train
 # for, and batch size

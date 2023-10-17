@@ -6,7 +6,7 @@ import numpy as np
 import imutils
 import cv2
 
-BOARD_IMG_PATH = "boards/board1.png"
+BOARD_IMG_PATH = "../boards/board1.png"
 
 
 def initialize_cell_locations(board, cell_locs, stepX, stepY):
