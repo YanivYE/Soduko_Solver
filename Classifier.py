@@ -6,7 +6,7 @@ import numpy as np
 import imutils
 import cv2
 
-BOARD_IMG_PATH = "boards/board2.png"
+BOARD_IMG_PATH = "boards/board1.png"
 
 
 def initialize_cell_locations(board, cell_locs, stepX, stepY):
@@ -77,4 +77,4 @@ cell_locs = []
 
 board, cell_locs = initialize_cell_locations(board, cell_locs, step_X, step_Y)
 
-print(type(board))
+board = np.matrix(board)
