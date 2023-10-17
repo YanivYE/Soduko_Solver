@@ -35,4 +35,3 @@ def build(width, height, depth, classes):
     model.add(Activation("softmax"))
     # return the constructed network architecture
     return model
-
