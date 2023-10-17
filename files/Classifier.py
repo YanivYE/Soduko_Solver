@@ -79,5 +79,6 @@ def classify_board():
     board, cell_locs = initialize_cell_locations(board, cell_locs, warped, model, step_X, step_Y)
 
     board = np.matrix(board)
+    board = board.tolist()
 
     return board

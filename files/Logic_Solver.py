@@ -2,6 +2,8 @@ from Classifier import classify_board
 import numpy as np
 
 puzzle = classify_board()
+solutions = []
+
 
 def is_possible(row, col, num):
     for i in range(9):
@@ -25,8 +27,25 @@ def not_in_square(row, col, num):
     return True
 
 
+def solve():
+    for row in range(9):
+        for col in range(9):
+            if puzzle[row][col] == 0:
+                for num in range(1, 10):
+                    if is_possible(row, col, num):
+                        puzzle[row][col] = num
+                        solve()
+                        puzzle[row][col] = 0
+                return
+
+    solutions.append(np.matrix(puzzle))
+
 
 def main():
+    solve()
+    if len(solutions) > 1:
+        print("More than one possible solution!\n")
+    print(solutions)
 
 
 if __name__ == '__main__':
