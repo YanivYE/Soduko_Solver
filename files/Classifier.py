@@ -6,8 +6,6 @@ import numpy as np
 import imutils
 import cv2
 
-BOARD_IMG_PATH = "../boards/board1.png"
-
 
 def initialize_cell_locations(board, cell_locs, warped, model, stepX, stepY):
     # loop over the grid locations
@@ -52,14 +50,14 @@ def prepare_cell(cell):
     return roi
 
 
-def classify_board():
+def classify_board(img_path):
     # load the digit classifier from disk
     print("[INFO] loading digit classifier...")
     model = load_model('my_model.keras')
 
     # load the input image from disk and resize it
     print("[INFO] processing image...")
-    image = cv2.imread(BOARD_IMG_PATH)
+    image = cv2.imread(img_path)
     image = imutils.resize(image, width=600)
 
     # find the puzzle in the image and then
