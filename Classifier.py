@@ -8,31 +8,8 @@ import cv2
 
 BOARD_IMG_PATH = "boards/board2.png"
 
-# load the digit classifier from disk
-print("[INFO] loading digit classifier...")
-model = load_model('my_model.keras')
 
-# load the input image from disk and resize it
-print("[INFO] processing image...")
-image = cv2.imread(BOARD_IMG_PATH)
-image = imutils.resize(image, width=600)
-
-# find the puzzle in the image and then
-(puzzleImage, warped) = Extract_Puzzle.define_board(image)
-# initialize our 9x9 Sudoku board
-board = np.zeros((9, 9), dtype="int")
-
-# a Sudoku puzzle is a 9x9 grid (81 individual cells), so we can
-# infer the location of each cell by dividing the warped image
-# into a 9x9 grid
-step_X = warped.shape[1] // 9
-step_Y = warped.shape[0] // 9
-# initialize a list to store the (x, y)-coordinates of each cell
-# location
-cell_locs = []
-
-
-def initialize_cell_locations(cell_locs, stepX, stepY):
+def initialize_cell_locations(board, cell_locs, stepX, stepY):
     # loop over the grid locations
     for y in range(0, 9):
         # initialize the current list of cell locations
@@ -59,9 +36,10 @@ def initialize_cell_locations(cell_locs, stepX, stepY):
                 # prediction
                 pred = model.predict(roi).argmax(axis=1)[0]
                 board[y, x] = pred
-                
+
         # add the row to our cell locations
         cell_locs.append(row)
+    return board, cell_locs
 
 
 def prepare_cell(cell):
@@ -72,3 +50,29 @@ def prepare_cell(cell):
     roi = img_to_array(roi)
     roi = np.expand_dims(roi, axis=0)
     return roi
+
+
+# load the digit classifier from disk
+print("[INFO] loading digit classifier...")
+model = load_model('my_model.keras')
+
+# load the input image from disk and resize it
+print("[INFO] processing image...")
+image = cv2.imread(BOARD_IMG_PATH)
+image = imutils.resize(image, width=600)
+
+# find the puzzle in the image and then
+(puzzleImage, warped) = Extract_Puzzle.define_board(image)
+# initialize our 9x9 Sudoku board
+board = np.zeros((9, 9), dtype="int")
+
+# a Sudoku puzzle is a 9x9 grid (81 individual cells), so we can
+# infer the location of each cell by dividing the warped image
+# into a 9x9 grid
+step_X = warped.shape[1] // 9
+step_Y = warped.shape[0] // 9
+# initialize a list to store the (x, y)-coordinates of each cell
+# location
+cell_locs = []
+
+board, cell_locs = initialize_cell_locations(board, cell_locs, step_X, step_Y)
