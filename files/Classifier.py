@@ -9,7 +9,7 @@ import cv2
 BOARD_IMG_PATH = "../boards/board1.png"
 
 
-def initialize_cell_locations(board, cell_locs, stepX, stepY):
+def initialize_cell_locations(board, cell_locs, warped, model, stepX, stepY):
     # loop over the grid locations
     for y in range(0, 9):
         # initialize the current list of cell locations
@@ -52,29 +52,32 @@ def prepare_cell(cell):
     return roi
 
 
-# load the digit classifier from disk
-print("[INFO] loading digit classifier...")
-model = load_model('my_model.keras')
+def classify_board():
+    # load the digit classifier from disk
+    print("[INFO] loading digit classifier...")
+    model = load_model('my_model.keras')
 
-# load the input image from disk and resize it
-print("[INFO] processing image...")
-image = cv2.imread(BOARD_IMG_PATH)
-image = imutils.resize(image, width=600)
+    # load the input image from disk and resize it
+    print("[INFO] processing image...")
+    image = cv2.imread(BOARD_IMG_PATH)
+    image = imutils.resize(image, width=600)
 
-# find the puzzle in the image and then
-(puzzleImage, warped) = Extract_Puzzle.define_board(image)
-# initialize our 9x9 Sudoku board
-board = np.zeros((9, 9), dtype="int")
+    # find the puzzle in the image and then
+    (puzzleImage, warped) = Extract_Puzzle.define_board(image)
+    # initialize our 9x9 Sudoku board
+    board = np.zeros((9, 9), dtype="int")
 
-# a Sudoku puzzle is a 9x9 grid (81 individual cells), so we can
-# infer the location of each cell by dividing the warped image
-# into a 9x9 grid
-step_X = warped.shape[1] // 9
-step_Y = warped.shape[0] // 9
-# initialize a list to store the (x, y)-coordinates of each cell
-# location
-cell_locs = []
+    # a Sudoku puzzle is a 9x9 grid (81 individual cells), so we can
+    # infer the location of each cell by dividing the warped image
+    # into a 9x9 grid
+    step_X = warped.shape[1] // 9
+    step_Y = warped.shape[0] // 9
+    # initialize a list to store the (x, y)-coordinates of each cell
+    # location
+    cell_locs = []
 
-board, cell_locs = initialize_cell_locations(board, cell_locs, step_X, step_Y)
+    board, cell_locs = initialize_cell_locations(board, cell_locs, warped, model, step_X, step_Y)
 
-board = np.matrix(board)
+    board = np.matrix(board)
+
+    return board
