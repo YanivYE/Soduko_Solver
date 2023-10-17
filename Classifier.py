@@ -76,3 +76,5 @@ step_Y = warped.shape[0] // 9
 cell_locs = []
 
 board, cell_locs = initialize_cell_locations(board, cell_locs, step_X, step_Y)
+
+print(type(board))

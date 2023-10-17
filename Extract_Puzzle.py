@@ -5,7 +5,8 @@ import numpy as np
 import imutils
 import cv2
 
-DEBUG = True
+BOARD_DEBUG = True
+CELL_DEBUG = False
 
 
 def define_board(image):
@@ -20,7 +21,7 @@ def define_board(image):
 
     # check to see if we are visualizing each step of the image
     # processing pipeline (in this case, thresholding)
-    if DEBUG:
+    if BOARD_DEBUG:
         cv2.imshow("Board Thresh", thresh)
         cv2.waitKey(0)
 
@@ -33,7 +34,7 @@ def define_board(image):
     warped = four_point_transform(gray, board_contour.reshape(4, 2))
 
     # check to see if we are visualizing the perspective transform
-    if DEBUG:
+    if BOARD_DEBUG:
         # show the output warped image (again, for debugging purposes)
         cv2.imshow("Board Transform", board)
         cv2.waitKey(0)
@@ -69,7 +70,7 @@ def find_board_contour(thresh_img, image):
         raise Exception(("Could not find Sudoku puzzle outline. "
                          "Try debugging your thresholding and contour steps."))
 
-    if DEBUG:
+    if BOARD_DEBUG:
         # draw the contour of the puzzle on the image and then display
         # it to our screen for visualization/debugging purposes
         output = image.copy()
@@ -87,7 +88,7 @@ def extract_digit(cell):
                            cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
     thresh = clear_border(thresh)
     # check to see if we are visualizing the cell thresholding step
-    if DEBUG:
+    if CELL_DEBUG:
         cv2.imshow("Cell Thresh", thresh)
         cv2.waitKey(0)
 
@@ -118,7 +119,7 @@ def extract_digit(cell):
     digit = cv2.bitwise_and(thresh, thresh, mask=mask)
 
     # check to see if we should visualize the masking step
-    if DEBUG:
+    if CELL_DEBUG:
         cv2.imshow("Digit", digit)
         cv2.waitKey(0)
     # return the digit to the calling function
