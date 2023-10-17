@@ -74,6 +74,7 @@ def classify_board(img_path):
     # location
     cell_locs = []
 
+    # cell locs for version 3.0.0
     board, cell_locs = initialize_cell_locations(board, cell_locs, warped, model, step_X, step_Y)
 
     board = np.matrix(board)
