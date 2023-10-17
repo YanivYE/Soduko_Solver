@@ -24,8 +24,21 @@ def define_board(image):
         cv2.imshow("Board Thresh", thresh)
         cv2.waitKey(0)
 
+    board_contour = find_board_contour(thresh, image)
 
+    # apply a four point perspective transform to both the original
+    # image and grayscale image to obtain a top-down bird's eye view
+    # of the puzzle
+    board = four_point_transform(image, board_contour.reshape(4, 2))
+    warped = four_point_transform(gray, board_contour.reshape(4, 2))
 
+    # check to see if we are visualizing the perspective transform
+    if DEBUG:
+        # show the output warped image (again, for debugging purposes)
+        cv2.imshow("Board Transform", board)
+        cv2.waitKey(0)
+    # return a 2-tuple of puzzle in both RGB and grayscale
+    return board, warped
 
 
 def find_board_contour(thresh_img, image):
@@ -65,3 +78,5 @@ def find_board_contour(thresh_img, image):
         cv2.drawContours(output, [board_cnt], -1, (0, 255, 0), 2)
         cv2.imshow("Puzzle Outline", output)
         cv2.waitKey(0)
+
+    return board_cnt
