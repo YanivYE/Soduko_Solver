@@ -68,8 +68,6 @@ def find_board_contour(thresh_img, image):
     if board_cnt is None:
         raise Exception(("Could not find Sudoku puzzle outline. "
                          "Try debugging your thresholding and contour steps."))
-        # check to see if we are visualizing the outline of the detected
-        # Sudoku puzzle
 
     if DEBUG:
         # draw the contour of the puzzle on the image and then display
@@ -80,3 +78,15 @@ def find_board_contour(thresh_img, image):
         cv2.waitKey(0)
 
     return board_cnt
+
+
+def extract_digit(cell):
+    # apply automatic thresholding to the cell and then clear any
+    # connected borders that touch the border of the cell
+    thresh = cv2.threshold(cell, 0, 255,
+                           cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
+    thresh = clear_border(thresh)
+    # check to see if we are visualizing the cell thresholding step
+    if DEBUG:
+        cv2.imshow("Cell Thresh", thresh)
+        cv2.waitKey(0)
