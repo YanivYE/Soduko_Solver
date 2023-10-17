@@ -32,7 +32,7 @@ step_Y = warped.shape[0] // 9
 cell_locs = []
 
 
-def initialize_cell_locations(stepX, stepY):
+def initialize_cell_locations(cell_locs, stepX, stepY):
     # loop over the grid locations
     for y in range(0, 9):
         # initialize the current list of cell locations
@@ -46,3 +46,29 @@ def initialize_cell_locations(stepX, stepY):
             endY = (y + 1) * stepY
             # add the (x, y)-coordinates to our cell locations list
             row.append((startX, startY, endX, endY))
+
+            # crop the cell from the warped transform image and then
+            # extract the digit from the cell
+            cell = warped[startY:endY, startX:endX]
+            digit = Extract_Puzzle.extract_digit(cell)
+
+            # verify that the digit is not empty
+            if digit is not None:
+                roi = prepare_cell(digit)
+                # classify the digit and update the Sudoku board with the
+                # prediction
+                pred = model.predict(roi).argmax(axis=1)[0]
+                board[y, x] = pred
+                
+        # add the row to our cell locations
+        cell_locs.append(row)
+
+
+def prepare_cell(cell):
+    # resize the cell to 28x28 pixels and then prepare the
+    # cell for classification
+    roi = cv2.resize(cell, (28, 28))
+    roi = roi.astype("float") / 255.0
+    roi = img_to_array(roi)
+    roi = np.expand_dims(roi, axis=0)
+    return roi
