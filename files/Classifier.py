@@ -33,6 +33,7 @@ def initialize_cell_locations(board, cell_locs, warped, model, stepX, stepY):
                 # classify the digit and update the Sudoku board with the
                 # prediction
                 pred = model.predict(roi).argmax(axis=1)[0]
+                print(pred)
                 board[y, x] = pred
 
         # add the row to our cell locations
