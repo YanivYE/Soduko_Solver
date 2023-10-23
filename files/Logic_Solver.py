@@ -40,5 +40,4 @@ class Solver:
                             self.solve()
                             self.puzzle[row][col] = 0
                     return
-
         self.solutions.append(np.matrix(self.puzzle))

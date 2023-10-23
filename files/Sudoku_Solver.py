@@ -1,6 +1,6 @@
 from Logic_Solver import Solver
 
-BOARD_IMG_PATH = "../boards/board3.png"
+BOARD_IMG_PATH = "../boards/board1.png"
 
 
 def main():

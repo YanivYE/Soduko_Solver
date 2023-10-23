@@ -5,7 +5,7 @@ import numpy as np
 import imutils
 import cv2
 
-BOARD_DEBUG = True
+BOARD_DEBUG = False
 CELL_DEBUG = False
 
 

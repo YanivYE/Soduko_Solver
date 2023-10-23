@@ -79,5 +79,4 @@ def classify_board(img_path):
 
     board = np.matrix(board)
     board = board.tolist()
-
     return board
