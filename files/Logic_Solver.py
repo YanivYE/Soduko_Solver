@@ -1,7 +1,7 @@
 from Classifier import classify_board
 import numpy as np
 
-BOARD_IMG_PATH = "../boards/board2.png"
+BOARD_IMG_PATH = "../boards/board4.png"
 
 puzzle = classify_board(BOARD_IMG_PATH)
 solutions = []
