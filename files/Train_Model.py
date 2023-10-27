@@ -7,6 +7,8 @@ from keras.optimizers import Adam
 from keras.datasets import mnist
 from sklearn.preprocessing import LabelBinarizer
 
+EVALUATE = False
+
 # initialize the initial learning rate, number of epochs to train
 # for, and batch size
 INIT_LR = 1e-3
@@ -33,7 +35,7 @@ y_test = to_categorical(y_test)
 
 # initialize the optimizer and model
 print("[INFO] compiling model...")
-opt = Adam(lr=INIT_LR)
+opt = Adam(learning_rate=INIT_LR)
 model = CNN_Model.build(width=28, height=28, depth=1, classes=10)
 model.compile(loss="categorical_crossentropy", optimizer=opt,
               metrics=["accuracy"])
@@ -47,22 +49,23 @@ history = model.fit(
     epochs=EPOCHS,
     verbose=1)
 
-# evaluate the network
-print("[INFO] evaluating network...")
+if EVALUATE:
+    # evaluate the network
+    print("[INFO] evaluating network...")
 
-plt.figure(1)
-plt.plot(history.history['loss'])
-plt.plot(history.history['val_loss'])
-plt.legend(['training', 'validation'])
-plt.title('Loss')
-plt.xlabel('epoch')
-plt.figure(2)
-plt.plot(history.history['accuracy'])
-plt.plot(history.history['val_accuracy'])
-plt.legend(['training', 'validation'])
-plt.title('Accuracy')
-plt.xlabel('epoch')
-plt.show()
+    plt.figure(1)
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.legend(['training', 'validation'])
+    plt.title('Loss')
+    plt.xlabel('epoch')
+    plt.figure(2)
+    plt.plot(history.history['accuracy'])
+    plt.plot(history.history['val_accuracy'])
+    plt.legend(['training', 'validation'])
+    plt.title('Accuracy')
+    plt.xlabel('epoch')
+    plt.show()
 
 # Evaluate the model, returns the loss value & metrics values for the model in test mode.
 test_loss, test_accuracy = model.evaluate(X_test, y_test)
